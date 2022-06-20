@@ -8,28 +8,25 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import seaborn as sns
 import pandas as pd
-from PIL import Image
-import plotly.figure_factory as ff
-import altair as alt
 #import function
 #How to run Streamlit
 #cd C:\Users\ghadi\source\repos\Presentation_Diabete_Project_Streamlit\Presentation_Diabete_Project_Streamlit
 # streamlit run Presentation_Diabete_Project_Streamlit.py
-
-#DataSet And Cleaning and Clustering to different DataSets(With BinaryData-Categorical Data)
+#########################################################
 #Importing DataSet
 diabete_df=pd.read_csv("https://raw.githubusercontent.com/MehrdadGh1989/Diabete_Project/main/diabetes_012_health_indicators_BRFSS2015.csv")
+#########################################################
 #Clean the DataFrame from duplicated rows
 diabete_df_clean=diabete_df.drop_duplicates()
 diabete_df_clean.reset_index(drop=True,inplace=True)
-
-#Creating DataFrame which contains columns with Binary Data and Categorical Data
+#########################################################
+#Creating DataFrame which contains columns with BinaryData and Categorical Data
 list_with_binary_attributes=['Diabetes_012','Veggies','HighBP','CholCheck', 'Sex', 'Stroke', 'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'HighChol', 'DiffWalk', 'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost']
 BinaryData_df=diabete_df_clean[list_with_binary_attributes]
 list_with_no_binary_attributes=['Diabetes_012','BMI','PhysHlth','MentHlth','Age','Income','Education','GenHlth']
 NoBinaryData_df=diabete_df_clean[list_with_no_binary_attributes]
-
-#NOW THE AIM HERE IS TO CATEGORIZE (Not Binary Datas=Categorical DATAS) In a way which will be more undestandable 
+#########################################################
+#NOW THE AIM HERE IS TO CATEGORIZE (Categorical DATAS) In a way which will be more undestandable
 # (Groping Data- Organizing data) in specified Categories
 #1 Obse         BMI >= 30
 #2 Overweight   BMI   25-29.9
@@ -40,7 +37,7 @@ NoBinaryData_df.loc[diabete_weight_group <18.5, 'Weight_Group']='Under Weight'
 NoBinaryData_df.loc[((diabete_weight_group >= 18.5) & (diabete_weight_group <= 24.9)), 'Weight_Group']='Healthy'
 NoBinaryData_df.loc[((diabete_weight_group >= 25) & (diabete_weight_group <= 29.9)), 'Weight_Group']='Over Weight'
 NoBinaryData_df.loc[diabete_weight_group >=30, 'Weight_Group']='Obse'
-###########
+############################
 #Age_group_detection
 #1   Age 18-24
 #2   Age 25-29
@@ -69,6 +66,7 @@ NoBinaryData_df.loc[diabete_age_group==10,'Age_Group']='Age 65-69'
 NoBinaryData_df.loc[diabete_age_group==11,'Age_Group']='Age 70-74'
 NoBinaryData_df.loc[diabete_age_group==12,'Age_Group']='Age 75_79'
 NoBinaryData_df.loc[diabete_age_group==13,'Age_Group']='Age 80 or older'
+#############################
 #Education_group_detection
 #1 Not attended School
 #2 Elementary
@@ -84,7 +82,7 @@ NoBinaryData_df.loc[diabete_education_group==4,'Education_Level']='High School G
 NoBinaryData_df.loc[diabete_education_group==5,'Education_Level']='Some College or Technichal School'
 NoBinaryData_df.loc[diabete_education_group==6,'Education_Level']='College Graduate'
 
-###################
+############################
 #Income_level
 #1=Less than 10000 $
 #2=Less than 15000 $
@@ -103,6 +101,7 @@ NoBinaryData_df.loc[diabete_income_group==5,'Income_Level']='Less than 35000 $'
 NoBinaryData_df.loc[diabete_income_group==6,'Income_Level']='Less than 50000 $'
 NoBinaryData_df.loc[diabete_income_group==7,'Income_Level']='Less than 75000 $'
 NoBinaryData_df.loc[diabete_income_group==8,'Income_Level']='75000 $ or More'
+############################
 #General Health:
 #1 = excellent,
 #2 = very good,
@@ -115,6 +114,7 @@ NoBinaryData_df.loc[diabete_GeneralHealth_group==2,'GeneralH']='Very Good'
 NoBinaryData_df.loc[diabete_GeneralHealth_group==3,'GeneralH']='Good'
 NoBinaryData_df.loc[diabete_GeneralHealth_group==4,'GeneralH']='Fair'
 NoBinaryData_df.loc[diabete_GeneralHealth_group==5,'GeneralH']='Poor'
+###########################
 #Diabete Status
 # No Diabete=0
 # Pre Diabete=1
@@ -123,31 +123,48 @@ diabete_type_detection=NoBinaryData_df['Diabetes_012']
 NoBinaryData_df.loc[diabete_type_detection==0,'Disease Status']='No Diabete'
 NoBinaryData_df.loc[diabete_type_detection==1,'Disease Status']='Pre Diabete'
 NoBinaryData_df.loc[diabete_type_detection==2,'Disease Status']='Diabete'
-######
+###################
 diabete_type_detection=BinaryData_df['Diabetes_012']
 BinaryData_df.loc[diabete_type_detection==0,'Disease Status']='No Diabete'
 BinaryData_df.loc[diabete_type_detection==1,'Disease Status']='Pre Diabete'
 BinaryData_df.loc[diabete_type_detection==2,'Disease Status']='Diabete'
 #################################################################
-###### Codes Related To Data Visualisation ######################
 #################################################################
-#1-The General Status of Pepole (Observations)
 NoBinaryData_df['Disease Status'].value_counts()
-#2-Showing the Data related to General Health In Bar Chart
 NoBinaryData_df['Disease Status'].value_counts().plot.bar()
+#################################################################
+#To compare different group of people who are in the same level :(High school graduated, Healthy and their General Health is Excellent).
 
+#NoBinaryData_df.Education_Level=='High School Graduated'
+#NoBinaryData_df.GeneralH=='Excellent'
+#NoBinaryData_df.Weight_Group=='Healthy'
+#To apply MASK on our DataFrame
+
+DF_MASK_APPLY=NoBinaryData_df[(NoBinaryData_df.Education_Level=='College Graduate')&(NoBinaryData_df.Weight_Group=='Healthy')&(NoBinaryData_df.GeneralH=='Excellent')]
+crosstab_Age_Income=pd.crosstab(DF_MASK_APPLY.Age_Group, DF_MASK_APPLY.Income_Level)
+#################################################################
+#Compare Different Specified Atributes (Columns) with each Other
+diabetes_weight=NoBinaryData_df.groupby(['Weight_Group','Disease Status']).size().reset_index(name = 'Number of People')
+#Calculate the (Percentage) of The above table
+diffnum_weight_people=NoBinaryData_df['Weight_Group'].value_counts()
+#Calculate the Percentage of The above table to have better veiw
+#diabetes_weight is a DataFrame
+#diffnum_weight_people is a series
+diabetes_weight_in_Percentage = diabetes_weight.set_index('Weight_Group').join(diffnum_weight_people)
+#It will join with the series Name and members
+diabetes_weight_in_Percentage['Percentage']=(diabetes_weight_in_Percentage['Number of People']*100/
+diabetes_weight_in_Percentage['Weight_Group'])
+#################################
+DF_1=NoBinaryData_df.groupby('Age_Group').MentHlth.agg(['count','min','max','mean'])
+#################################
+DF_2=NoBinaryData_df.groupby('Age_Group').PhysHlth.agg(['count','min','max','mean'])
+#################################
+crosstab_Education_Income=pd.crosstab(NoBinaryData_df.Education_Level, NoBinaryData_df.Income_Level)
 
 #################################################################
-    
-#image=Image.open('C:/Users/ghadi/Desktop/Univr2.jpg')
-#st.image(image,use_column_width=True)
-#Splitting the part in streamlit
-#st.write("""
-#***
-#""")
+
 #Choosing Title in streamlit
 st.title('Programming Project')
-
 st.write("""
 ***
 """)
@@ -165,7 +182,7 @@ if st.sidebar.checkbox('Data Part'):
         if st.checkbox('The Main DataFrame Released in The Kaggle Website'):
             st.write(diabete_df)
         if st.checkbox('The Clean DataFrame: Deleting The Duplicated rows'):
-            st.write('diabete_df_clean')
+            st.write(diabete_df_clean)
         if st.checkbox('The Binary DataFrame Extracted from The Clean DataFrame'):
             st.write(BinaryData_df)
         if st.checkbox('The Categorical DataFrame Extracted from The Clean DataFrame'):
@@ -173,17 +190,33 @@ if st.sidebar.checkbox('Data Part'):
     st.write("""
     ***
     """)
-st.write("""
-***
-""")
-
+    if st.checkbox('Extracting Some Informations From DataSet'):
+       st.write("In this DataFrame, The Number of Observations in Each category of Weight Group (UnderWeight, Healthy, OverWeight, Obse) and Disease Status (NoDiabete, PreDiabete, Diabete) has been calculate.")
+       st.write(diabetes_weight_in_Percentage.round(2))
+       st.write("""
+       ***
+       """)
+       st.write('Mental health which includes stress, depression, and problems with emotions, This DataFrame shows For how many days Observations have mental health during the past 30 days.')
+#Mental Health and Agegroup')
+       st.write(DF_1)
+       st.write("""
+       ***
+       """)
+       st.write('Physical health, which includes physical illness and injuries, This DataFrame shows For how many days Observations have physical health problems during the past 30 days.')
+       st.write(DF_2)
+       st.write("""
+       ***
+       """)
+       st.write('The Comparison of Different Numbers of People in Different Education Level and with different Income level has been shown.')
+       st.write(crosstab_Education_Income.T)
+    
 ####################################################
 #Data Visualization Part
 ####################################################
 #Sidebar
 if st.sidebar.checkbox('Data Visualization Part'):
     st.header('Data Visualization Part')
-    if st.checkbox('Education Level of People participated in this Survey'):
+    if st.checkbox('Education Level of People participated in this Survey - Pie Chart'):
         Education_Level=NoBinaryData_df['Education_Level'].value_counts()
         #(Education-Level in Percentage)
         colors = ['darkorange', 'sandybrown','darksalmon', 'orangered','chocolate']
@@ -196,16 +229,16 @@ if st.sidebar.checkbox('Data Visualization Part'):
         ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         st.pyplot(fig1)
         st.caption('The Percentage of People in different Education Levels')
-        
-        Education_Level=NoBinaryData_df['Education_Level'].value_counts()
-       # st.write(Education_Level)
+        st.write('This Figure shows the  different Academic level of people  participated to the survey, According to this figure, graduated people have the most share with 38.5% and Non attended school obsevations have the least portion with 0.1%.')
+        # Education_Level=NoBinaryData_df['Education_Level'].value_counts()
+        # st.write(Education_Level)
         #with col_2:
         st.write("""
         ***
         """)
     ########################################################################
-        #2 (Disease Status in pie Chart in percentage)
-    if st.checkbox('Diabete Status of People participated in this Survey'):
+        #2(Disease Status in pie Chart in percentage)
+    if st.checkbox('Diabete Status of People participated in this Survey - Pie Chart'):
         fig2,ax2=plt.subplots(figsize=(10,6))
         colors = ['cornflowerblue','silver', 'lime']
         #Disease_Status=NoBinaryData_df['Disease Status'].value_counts()
@@ -217,12 +250,13 @@ if st.sidebar.checkbox('Data Visualization Part'):
         ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         st.pyplot(fig2)
         st.caption('The Percentage of people Having No Diabete, Daibete or Pre Diabete')
+        st.write('From the figure, it is evident that 82.7% of people are Healthy (Have no Diabete), 15.3% have diabetes and people with pre diabete comprise the small share of the survey with only 2.0%.')
         st.write("""
         ***
         """)
     ####################################################################
     #3Comparing The General Health condition of Smokers and NonSmokers
-    if st.checkbox('Smoke and General Health'): 
+    if st.checkbox('Smokers and General Health - Bar Chart'):
         fig3,ax3=plt.subplots(figsize=(10,6))
         df = pd.DataFrame({'Excellent': {'NonSmoker': 21902,'Smoker':13005},
                    'VeryGood' : {'NonSmoker': 44203,'Smoker':33333},
@@ -231,9 +265,10 @@ if st.sidebar.checkbox('Data Visualization Part'):
                     'Poor'    : {'NonSmoker': 4238 ,'Smoker': 7840}})
                   
         sns.barplot(x='General Health', y='value', hue='index',
-               data=df.reset_index().melt(id_vars='index', var_name='General Health'))
+          data=df.reset_index().melt(id_vars='index', var_name='General Health'))
         st.write(fig3)
         st.caption('Comparing The General Health condition of Smokers and NonSmokers')
+        st.write('The general idea is that people who do not smoke have better General Health in comparison to smoker, the above bar chart approve this opinion since The number of People who are not smokers are more in (Excellent, Very Good and Good) level of General Health Condition. On the other hand, participants in Fair and Poor Category of health condition are more smokers. ')
         st.write("""
         ***
         """)
@@ -244,19 +279,21 @@ if st.sidebar.checkbox('Data Visualization Part'):
         sns.heatmap(diabete_df_clean.corr(), annot=True,cmap = 'YlOrBr')
         st.write(A)
         st.caption('Correlation between different independent variables')
+        st.write('In this Figure, the Correlation between all variables of the DataFrame has been shown. The value of correlations changes between -1 and 1.  ')
         st.write("""
         ***
         """)
 ##########################################################
     #5 Density Distribution 
     
-    if  st.checkbox('Density-Distribution'):
+    if  st.checkbox('BMI & GenHlth Density Distribution'):
         col3,col4=st.columns(2)
         with col3:
             fig4,ax4=plt.subplots(figsize=(10,6))
             sns.distplot(NoBinaryData_df["BMI"], hist_kws = dict(linewidth = 1,facecolor='peru',edgecolor = "g"),bins = 70);
             st.write(fig4)
             st.caption('Density Distribution of BMI Parameter')
+            st.caption('This figure represents the Distribution of BMI parameter that can be categorized in Normal Distribution Group.')
             st.write("""
             ***
             """)
@@ -267,12 +304,13 @@ if st.sidebar.checkbox('Data Visualization Part'):
             sns.kdeplot(NoBinaryData_df['GenHlth'], shade=True)
             st.write(fig5)
             st.caption('Density Distribution of GenHlth Parameter')
+            st.caption('The figure shows the distribution of General Health parameters which are categorized in 5 groups (1 = Excellent, 2 = Very Good, 3 = Good, 4 = Fair, 5 = Poor) and the most of participants have Very Good Genral Health Condition.')
             st.write("""
             ***
             """)
  ##########################################################################################
-#Comparing Men and Women at different age groups Having Diabetes
-    if st.checkbox('Comparing Men and Women Having diabete at different Age level'): 
+    #6 Comparing Men and Women at different age groups Having Diabetes
+    if st.checkbox('Comparing Men and Women Having diabete at different Age level -Bar Chart'): 
         fig6,ax6=plt.subplots(figsize=(10,6))
         df1 = pd.DataFrame({'Age 18-24': {'Female': 45,'Male':33},
                    'Age 25-29' : {'Female': 89,'Male':51},
@@ -293,33 +331,66 @@ if st.sidebar.checkbox('Data Visualization Part'):
         plt.xticks(label='ddm', rotation=25)
         st.write(fig6)
         st.caption('Comparing The Females and Males Having Diabete in Different Age Level ')
+        st.write('This figure shows the number of Mens and Womens having Diabete in different Age Category, According to this Figure Except the Age category 65-69 and 70-74, the number of Womens having Diabete are more in comparison to Mens')
         st.write("""
         ***
         """)
 #######################################
-    #4 Heat Map (Correlation-Heatmap)
-    if  st.checkbox('Histogram'):
-        A=plt.figure(figsize=(20,15))
-        diabete_df_clean.hist(bins=50,figsize=(30,40))
-        st.write(A)
-        st.caption('Histogram')
+    #7 PairPlot
+    #if  st.checkbox('PairPlot'):
+        #fig=sns.pairplot(diabete_df_clean, hue = 'Diabetes_012', vars = ['BMI','Age', 'Income','Education','GenHlth'] , palette='Dark2' )
+        #plt.subplots_adjust(top=0.9)
+        #plt.pyplot(fig)
+ ######################################
+    #Line Graph
+    if st.checkbox('The Number of people and Salary and Age Group - Line Graph'):
+        fig7,ax7=plt.subplots(figsize=(10,6))
+        Age_list1=['Age 18-24','Age 25-29','Age 30-34','Age 35-39','Age 40-44','Age 45-49','Age 50-54','Age 55-59','Age 60-64','Age 65-69','Age 70-74','Age 75_79','Age 80 or older']
+        Less_Than_35000_Dollors=[28,30,27,19,11,19,29,35,52,62,41,29,34]
+        Less_Than_50000_Dollors=[37,90,68,50,43,48,70,75,104,110,92,42,61]
+        Less_Than_75000_Dollors=[44,101,123,94,114,95,127,158,175,165,129,77,84]
+        #len(Age_list1)==len(Less_Than_35000_Dollors)
+        #len(Age_list1)==len(Less_Than_50000_Dollors)
+        #len(Age_list1)==len(Less_Than_75000_Dollors)
+        #plt.figure(figsize=(10,8))
+        plt.plot(Age_list1,Less_Than_35000_Dollors,label='Less_Than_35000_Dollors',color='red',linestyle='-.',linewidth=2,marker='.',markersize=15)
+        plt.plot(Age_list1,Less_Than_50000_Dollors,'^g',label='Less_Than_50000_Dollors')
+        plt.plot(Age_list1,Less_Than_75000_Dollors,label='Less_Than_50000_Dollors',color='blue',linestyle='--',linewidth=1,marker='.',markersize=15)
+        plt.legend()
+        plt.xticks(label='ddm', rotation=25)
+        plt.xlabel('Different Age Group')
+        plt.ylabel('Number of People')
+        st.write(fig7)
+        st.caption('Comparison of Salary that people receive in different age groups with the same situtions (They are High school graduated, They are Healthy and their General Health is Excellent).')
+        st.write('The above figure shows the number of people receiving different Salary at different age groups . All the participants of the Survey have the same features in terms of Education, Health and General Health. From the Figure, It is evident that the maximum number of people receiving the same amount of money are concentrated in  60-64 and 65-69 Age Groups.')
         st.write("""
-        ***
-        """)        
+    ***
+    """)
+    #Scatter Plot
+    if st.checkbox('PhysHlth & MentHlth Distribution - Scatter Plot'):
+        fig8,ax8=plt.subplots(figsize=(10,6))
+        #Index shows the number of days in a month people have physical and Mental Problem
+        #Scatter plot
+        #0=PhysHlt -1=MentHlth
+        A=diabete_df_clean.PhysHlth.value_counts(normalize=True)
+        A_list=A.tolist()
+        # PhysHlth_list = diabete_df_clean['PhysHlth'].tolist()
+        B=diabete_df_clean.MentHlth.value_counts(normalize=True)
+        B_list=B.tolist()
+        plt.scatter( B_list, A_list ,marker='*', color='blue')
+        plt.xlabel('Mental_Health')
+        plt.ylabel('Physical_Health')
+        st.write(fig8)
+        st.caption('Mental_Health and Physical_Health Scatter Plot')
+        #To plot a Table
+        A=diabete_df_clean.PhysHlth.value_counts(normalize=True)
+        B=diabete_df_clean.MentHlth.value_counts(normalize=True)
+        A_df=pd.DataFrame(A)
+        B_df=pd.DataFrame(B)
+        AB_df=pd.concat([A,B],axis=1,ignore_index=True)
+        st.write(AB_df)
+        st.write('The figure shows the relation of two variables (Mental_Health and Physical_Health) by scatter plot. According to this figure, the vast majarity of people around 60 percent have the same physical and mental health condition. By Considering the table, 60 percent of people experience the situation (0) which means that they do not suffer from mental and physical health problem even for 1 day.')
 
-#1   Age 18-24
-#2   Age 25-29
-#3   Age 30-34
-#4   Age 35-39
-#5   Age 40-44
-#6   Age 45-49
-#7   Age 50-54
-#8   Age 55-59
-#9   Age 60-64
-#10  Age 65-69
-#11  Age 70-74
-#12  Age 75_79
-#13  Age 80 or older
 ##################################################################
 ######## Modifying Approach1
 #Creating DATA FRAME ACCORDING TO OBSERVATION OF PREDIABETES
@@ -369,9 +440,6 @@ NonPreDiabete_df=diabete_df_clean.drop(diabete_df_clean.index[diabete_df_clean['
 
 if st.sidebar.checkbox('Machine Learning'):
     st.header('Prediction Part')
-    st.write("""
-        ***
-        """)
     st.write("The main Target is Predicting Diabete Disease. At First, the Clean DataFrame has been selected to be investigated With 3 Different Machine Leaning Models.")
     st.write('The Below Figure extracted from Clean DataFrame shows the Percentage of Observations who have Diabte, PreDiabete and NonDiabete.')
     fig2,ax2=plt.subplots(figsize=(10,6))
@@ -388,70 +456,34 @@ if st.sidebar.checkbox('Machine Learning'):
     #######################333
     #Model 1 : Naive-Bayse
     if st.checkbox('Model 1: Naive-Bayes'):
+        from sklearn.naive_bayes import GaussianNB
+        from sklearn.model_selection import train_test_split
         from sklearn import metrics
-        from sklearn import metrics
-        from sklearn.model_selection import train_test_split  
-        from sklearn.preprocessing import StandardScaler 
-        from sklearn.metrics import confusion_matrix 
- 
-        x = diabete_df_clean.iloc[:, [1, 2, 3, 4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]].values  
-        y = diabete_df_clean.iloc[:, 0].values  
-
-        x1 = diabete_df_clean.iloc[:, [1]].values  
-        x2 = diabete_df_clean.iloc[:, [2]].values
-        x3 = diabete_df_clean.iloc[:, [3]].values
-        x4 = diabete_df_clean.iloc[:, [4]].values
-        x5 = diabete_df_clean.iloc[:, [5]].values
-        x6 = diabete_df_clean.iloc[:, [6]].values
-        x7 = diabete_df_clean.iloc[:, [7]].values
-        x8 = diabete_df_clean.iloc[:, [8]].values
-        x9 = diabete_df_clean.iloc[:, [9]].values
-        x10 = diabete_df_clean.iloc[:, [10]].values
-        x11 = diabete_df_clean.iloc[:, [11]].values
-        x12 = diabete_df_clean.iloc[:, [12]].values
-        x13 = diabete_df_clean.iloc[:, [13]].values
-        x14 = diabete_df_clean.iloc[:, [14]].values
-        x15 = diabete_df_clean.iloc[:, [15]].values
-        x16 = diabete_df_clean.iloc[:, [16]].values
-        x17 = diabete_df_clean.iloc[:, [17]].values
-        x19 = diabete_df_clean.iloc[:, [19]].values
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.25, random_state = 0)  
-        from sklearn.naive_bayes import GaussianNB  
-        classifier = GaussianNB()  
-        classifier.fit(x_train, y_train)  
-        y_pred = classifier.predict(x_test)
-        y_pred = classifier.predict(x_test) 
-        print(y_pred)
-        cm = confusion_matrix(y_test, y_pred)  
-        print(cm)
-        st.write('The Confusion Matrix is:')
-        st.write(cm)
-        st.write('y_Pridication,x_Actual')
-        print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
-        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100)
+        y= diabete_df_clean['Diabetes_012']
+        x = diabete_df_clean.drop('Diabetes_012', axis=1)
+        x_train, x_test, y_train, y_test = train_test_split(x, y , test_size=0.2, random_state=1)
+        model = GaussianNB()
+        model.fit(x_train, y_train)
+        y_pred = model.predict(x_test)
+        #sum(y_pred == y_test) / len(y_pred)
+        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100,'%')
         st.write("""
         ***
         """)
    #############
    #Decision Tree Model2
     if st.checkbox('Model 2: Decision Tree '):
-        
         from sklearn.tree import DecisionTreeClassifier
-        from sklearn.model_selection import train_test_split 
-        from sklearn import metrics 
-        from sklearn.metrics import confusion_matrix 
-        x = diabete_df_clean.iloc[:, [1, 2, 3, 4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]].values  
-        y = diabete_df_clean.iloc[:, 0].values
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
-        abc = DecisionTreeClassifier(random_state=2)
-        model = abc.fit(x_train, y_train)
+        from sklearn.model_selection import train_test_split  
+        from sklearn import metrics
+        y= diabete_df_clean['Diabetes_012']
+        x = diabete_df_clean.drop('Diabetes_012', axis=1)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=1)
+        model = DecisionTreeClassifier()
+        model.fit(x_train, y_train)
         y_pred = model.predict(x_test)
-        cm = confusion_matrix(y_test, y_pred)  
-        print(cm)
-        st.write('The Confusion Matrix is:')
-        st.write(cm)
-        st.write('y_Pridication,x_Actual')
-        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100)
+        #sum(y_pred == y_test) / len(y_pred)
+        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100,'%')
         st.write("""
         ***
         """)
@@ -459,28 +491,22 @@ if st.sidebar.checkbox('Machine Learning'):
    #Adaboosting Model 3
     if st.checkbox('Model 3: Adaboosting '):
         from sklearn.ensemble import AdaBoostClassifier
-        from sklearn.model_selection import train_test_split 
-        from sklearn import metrics 
-        from sklearn.metrics import confusion_matrix
-        x = diabete_df_clean.iloc[:, [1, 2, 3, 4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]].values  
-        y = diabete_df_clean.iloc[:, 0].values 
+        from sklearn.model_selection import train_test_split
+        from sklearn import metrics
+        x = diabete_df_clean.drop('Diabetes_012', axis=1)
+        y= diabete_df_clean['Diabetes_012']
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
         Adaboost_Classifier = AdaBoostClassifier(n_estimators=70,learning_rate=1)
         model = Adaboost_Classifier.fit(x_train, y_train)
         y_pred = model.predict(x_test)
-        print("Accuracy:",metrics.accuracy_score(y_test, y_pred)*100, "%")
-        cm = confusion_matrix(y_test, y_pred)  
-        print(cm)
-        st.write('The Confusion Matrix is:')
-        st.write(cm)
-        st.write('y_Pridication,x_Actual')
-        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100)
+        #sum(y_pred == y_test) / len(y_pred)
+        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100., "%")
         st.write("""
         ***
         """)
   ########################################################################3
-    if st.checkbox('Modifying Approach 1'):
-        st.write('In this Approach the New DataFrame has been defined based on equal Observation. Also, In this approach, only the Adaboosting Model has been used since it had more accuracy in comparison to other models.')
+    if st.checkbox('Approach 1 : Equal Observation in Each group'):
+        st.write('In this Approach the New DataFrame has been defined and created based on equal Observation. Also, In this approach, only the Adaboosting Model has been used since it shows more accuracy in comparison to other models.')
         st.write(combined_equal_df)
         fig9,ax9=plt.subplots(figsize=(10,6))
         colors = ['slateblue','violet', 'slategrey']
@@ -497,18 +523,21 @@ if st.sidebar.checkbox('Machine Learning'):
         from sklearn.ensemble import AdaBoostClassifier
         from sklearn.model_selection import train_test_split
         from sklearn import metrics
-        x = combined_equal_df.iloc[:, [1, 2, 3, 4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]].values  
-        y = combined_equal_df.iloc[:, 0].values 
+        x = combined_equal_df.drop('Diabetes_012', axis=1)
+        y= combined_equal_df['Diabetes_012']
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
         Adaboost_Classifier = AdaBoostClassifier(n_estimators=70,learning_rate=1)
         model = Adaboost_Classifier.fit(x_train, y_train)
         y_pred = model.predict(x_test)
-        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100)
+        st.write("Accuracy in Percentage:",metrics.accuracy_score(y_test, y_pred)*100,'%')
+        st.write('The Accuracy of the Model experienced dramatic reduction around 32%.As a result this model is not appropriate.')
+        st.write("""
+        ***
+        """)
  ################################################################################################################   
-    if st.checkbox('Modifying Approach 2'):
-       st.write('In this Approach the New DataFrame has been defined based on NonDiabete and Diabete Observations (PreDiabete has been removed from DataFrame). Also, In this approach, only the Adaboosting Model has been used since it had more accuracy in comparison to other models.')
-       
-       st.write(combined_equal_df)
+    if st.checkbox('Approach 2 : Removing Observations Who have PreDiabete'):
+       st.write('In this Approach the New DataFrame has been created based on NonDiabete and Diabete Observations (PreDiabete has been removed from DataFrame). Also, In this approach, only the Adaboosting Model has been used since it has more accuracy in comparison to other models.')
+       st.write(NonPreDiabete_df)
        fig10,ax10=plt.subplots(figsize=(10,6))
        colors = ['slateblue','violet']
        labels=['No Diabete','Diabete']
@@ -517,16 +546,15 @@ if st.sidebar.checkbox('Machine Learning'):
        ax10.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
        st.pyplot(fig10)
        st.caption('The pie chart shows the percentage of Observations with different Health Status')
-
        from sklearn.ensemble import AdaBoostClassifier
        from sklearn.model_selection import train_test_split
        from sklearn import metrics
-       x = NonPreDiabete_df.iloc[:, [1, 2, 3, 4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]].values  
-       y = NonPreDiabete_df.iloc[:, 0].values 
+       x = NonPreDiabete_df.drop('Diabetes_012', axis=1)
+       y= NonPreDiabete_df['Diabetes_012']
        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.30)
        Adaboost_Classifier = AdaBoostClassifier(n_estimators=70,learning_rate=1)
        model = Adaboost_Classifier.fit(x_train, y_train)
        y_pred = model.predict(x_test)
        st.write("Accuracy:",metrics.accuracy_score(y_test, y_pred)*100, "%")
-
+       st.write('The accuracy of the model increased around 2%.')
 ###############
